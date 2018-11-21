@@ -1,0 +1,61 @@
+<!DOCTYPE HTML>
+<html>
+    <head>
+        <meta charset="utf-8"/>
+        <meta name="viewport" content="initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+        <meta name="HandheldFriendly" content="true"/>
+        <meta name="MobileOptimized" content="320"/>
+        <title>H5Plugin</title>
+        <script type="text/javascript" src="testplugin.js"></script>
+        
+        <script type="text/javascript">
+            
+        function pluginShow() {
+            plus.plugintest.loginILive("cf","eJxlz1FLwzAQwPH3foqS14lemgRF2MOwIpW1dK5QfAppm7anNevSWN3E7y6rAwve6*9-HPfl*b5PsvX2UpXl7t046Q69Jv6tT4Bc-GHfYyWVk8xW-1B-9mi1VLXTdkIqhAgA5g1W2jis8VyU9cyG6lVOB36XOQClwDmfJ9hMGN9v7qLQihSLPGTYBk16ZZ7VzV49GVDF2h7aMe501mx0VoxRtsJVlw5hwthLnsTxuFjshyPtskcHbU6TGpM*d0X3sI04HD*Wy9lJh2-6-A2jLADGr2c6ajvgzkxBAFTQgMFpiPft-QDyyFx6", function( result ) {alert("登录成功")},function(result){alert( result[0]  + "_" + result[1]  + "_" + result[2]);});
+        }
+        
+        function pluginGetString()
+        {
+            plus.plugintest.openMap();
+        }
+        
+        function pluginGetStringArrayArgu()
+        {
+            plus.plugintest.joinRoom("8888","Plus", function( result ) {alert("登录成功")},function(result){alert( result[0]  + "_" + result[1]  + "_" + result[2]);});
+        }
+        
+        function PostNotification(){
+            // 通过NativeJS发送消息到原生层
+            var notiClass = plus.ios.importClass("NSNotificationCenter");
+            notiClass.defaultCenter().postNotificationNameobject("SendDataToNative","HTML Page Send Data By NJS");
+        }
+
+        function AuthenticateUser()
+        {
+            plus.plugintest.AuthenticateUser(function(message){
+                                                            alert(message.state + '------' + message.message);
+                                                            },
+                                             function(message){
+                                                            alert(message.state + '------' + message.message);
+                                                            });
+        }
+        
+            </script>
+        <link rel="stylesheet" href="./css/common.css" type="text/css" charset="utf-8"/>
+    </head>
+    <body>
+        <header>
+            <div class="nvbt iback" onclick="back(true)"></div>
+            <div class="nvtt">HBuilder-Plugin</div>
+        </header>
+        <div id="dcontent" class="dcontent">
+            <br/>
+            <div class="button" onclick="pluginShow()">登陆()</div>
+            <div class="button" onclick="pluginGetString()">打开地图()</div>
+            <div class="button" onclick="pluginGetStringArrayArgu()">加入房间()</div>
+            <div class="button" onclick="PostNotification()">NJS发送消息到原生层</div>
+            <div class="button" onclick="AuthenticateUser()">指纹解锁</div>
+            <br/>
+        </div>
+    </body>
+</html>
