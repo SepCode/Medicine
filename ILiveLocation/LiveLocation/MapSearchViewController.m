@@ -10,6 +10,7 @@
 #import "UIView+Frame.h"
 #import <BaiduMapAPI_Search/BMKSearchComponent.h>
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
+#import <BaiduMapAPI_Utils/BMKUtilsComponent.h>
 #import <Masonry.h>
 
 @interface MapSearchViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, BMKSuggestionSearchDelegate, BMKMapViewDelegate, BMKPoiSearchDelegate>
@@ -139,6 +140,37 @@ static NSString *kCell = @"cell";
 }
 
 - (void)openNav:(UIButton *)btn {
+    
+    
+    
+    //初始化调起百度地图驾车路线参数类
+    BMKOpenDrivingRouteOption *option = [[BMKOpenDrivingRouteOption alloc] init];
+    //指定返回自定义scheme
+    option.appScheme = @"baidumapsdk://mapsdk.baidu.com";
+    //调起百度地图客户端失败后，是否支持调起web地图，默认：YES
+    option.isSupportWeb = YES;
+    //实例化线路检索节点信息类对象
+    BMKPlanNode *start = [[BMKPlanNode alloc]init];
+    //指定起点经纬度
+    start.pt = CLLocationCoordinate2DMake(39.90868, 116.204);
+    //指定起点名称
+    start.name = @"西直门";
+    //所在城市
+    start.cityName = @"北京";
+    //指定起点
+    option.startPoint = start;
+    //实例化线路检索节点信息类对象
+    BMKPlanNode *end = [[BMKPlanNode alloc]init];
+    //终点坐标
+    end.pt = CLLocationCoordinate2DMake(39.90868, 116.3956);
+    //指定终点名称
+    end.name = @"天安门";
+    //城市名
+    end.cityName = @"北京";
+    //终点节点
+    option.endPoint = end;
+    
+    [BMKOpenRoute openBaiduMapDrivingRoute:option];
     
 }
 
