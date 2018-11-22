@@ -180,6 +180,7 @@
     [self.mapView updateLocationData:self.userLocation];
     
     self.search.city = location.rgcData.city;
+    self.search.location = location.location.coordinate;
 }
 #pragma mark - Lazy loading
 - (BMKMapView *)mapView {

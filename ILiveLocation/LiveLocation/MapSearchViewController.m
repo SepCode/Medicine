@@ -33,6 +33,9 @@ static NSString *kCell = @"cell";
 - (instancetype)init {
     
     if (self = [super init]) {
+        
+        _city = @"北京";
+        _location = CLLocationCoordinate2DMake(39.90868, 116.3956);
         [self setSearchBar];
     }
     return self;
@@ -141,7 +144,14 @@ static NSString *kCell = @"cell";
 
 - (void)openNav:(UIButton *)btn {
     
+    NSIndexPath *indexPath = [self.tableView indexPathForCell:(UITableViewCell *)btn.superview];
     
+    [self openBaiduNav:indexPath];
+    
+}
+
+
+- (void)openBaiduNav:(NSIndexPath *)indexPath {
     
     //初始化调起百度地图驾车路线参数类
     BMKOpenDrivingRouteOption *option = [[BMKOpenDrivingRouteOption alloc] init];
@@ -152,21 +162,21 @@ static NSString *kCell = @"cell";
     //实例化线路检索节点信息类对象
     BMKPlanNode *start = [[BMKPlanNode alloc]init];
     //指定起点经纬度
-    start.pt = CLLocationCoordinate2DMake(39.90868, 116.204);
+    start.pt = self.location;
     //指定起点名称
-    start.name = @"西直门";
+    start.name = @"我的位置";
     //所在城市
-    start.cityName = @"北京";
+    //    start.cityName = @"北京";
     //指定起点
     option.startPoint = start;
     //实例化线路检索节点信息类对象
     BMKPlanNode *end = [[BMKPlanNode alloc]init];
     //终点坐标
-    end.pt = CLLocationCoordinate2DMake(39.90868, 116.3956);
+    end.pt = [self getCoordinate:indexPath];
     //指定终点名称
-    end.name = @"天安门";
+    end.name = [self getTitle:indexPath];
     //城市名
-    end.cityName = @"北京";
+    end.cityName = @" ";
     //终点节点
     option.endPoint = end;
     

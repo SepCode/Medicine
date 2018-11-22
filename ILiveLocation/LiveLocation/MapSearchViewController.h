@@ -7,10 +7,14 @@
 //
 
 #import <UIKit/UIKit.h>
+#import <CoreLocation/CoreLocation.h>
 
 @interface MapSearchViewController : UIViewController
 /// city
 @property (nonatomic, copy) NSString *city;
+/// location
+@property (nonatomic) CLLocationCoordinate2D location;
+
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UISearchBar *searchBar;
 
