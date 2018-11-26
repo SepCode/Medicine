@@ -31,7 +31,7 @@
     //当mapView即将被显示的时候调用，恢复之前存储的mapView状态
     [self.mapView viewWillAppear];
     
-    self.searchBar.text = self.search.searchBar.text;
+//    self.searchBar.text = self.search.searchBar.text;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
