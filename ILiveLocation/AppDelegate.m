@@ -10,7 +10,8 @@
 #import <ILiveSDK/ILiveSDK.h>
 #import <BMKLocationkit/BMKLocationComponent.h>
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
-
+@import GoogleMaps;
+@import GooglePlaces;
 #import "PDRCore.h"
 #import "PDRCommonString.h"
 #import "ViewController.h"
@@ -54,8 +55,11 @@ static  const int kAccountType = 31110;
         NSLog(@"启动引擎失败");
     }
     
+    /////////////////////////////////////////////
+    //googlemap
     
-    
+    [GMSPlacesClient provideAPIKey:@"AIzaSyBYfzmjqwBtY9RLV2PzFgFNNpJAL28akdE"];
+    [GMSServices provideAPIKey:@"AIzaSyBYfzmjqwBtY9RLV2PzFgFNNpJAL28akdE"];
     
     /////////////////////////////////////////////////////////////////////////////////
     

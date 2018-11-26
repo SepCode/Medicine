@@ -30,6 +30,8 @@
     [super viewWillAppear:NO];
     //当mapView即将被显示的时候调用，恢复之前存储的mapView状态
     [self.mapView viewWillAppear];
+    
+    self.searchBar.text = self.search.searchBar.text;
 }
 
 - (void)viewWillDisappear:(BOOL)animated {
@@ -104,7 +106,7 @@
     self.searchBar.placeholder = @"请输入您查找的地址";
     self.searchBar.backgroundImage = [UIImage new];
     self.searchBar.delegate = self;
-    
+
     [self.view addSubview:self.searchBar];
     
 }

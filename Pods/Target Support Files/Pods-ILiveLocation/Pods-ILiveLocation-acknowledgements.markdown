@@ -52,6 +52,14 @@ SOFTWARE.
 
 
 
+## GoogleMaps
+
+Copyright 2018 Google
+
+## GooglePlaces
+
+Copyright 2018 Google
+
 ## Masonry
 
 Copyright (c) 2011-2012 Masonry Team - https://github.com/Masonry

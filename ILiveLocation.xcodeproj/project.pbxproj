@@ -1160,10 +1160,14 @@
 			inputPaths = (
 				"${SRCROOT}/Pods/Target Support Files/Pods-ILiveLocation/Pods-ILiveLocation-resources.sh",
 				"${PODS_ROOT}/BaiduMapKit/BaiduMapKit/BaiduMapAPI_Map.framework/mapapi.bundle",
+				"${PODS_ROOT}/GoogleMaps/Maps/Frameworks/GoogleMaps.framework/Resources/GoogleMaps.bundle",
+				"${PODS_ROOT}/GooglePlaces/Frameworks/GooglePlaces.framework/Resources/GooglePlaces.bundle",
 			);
 			name = "[CP] Copy Pods Resources";
 			outputPaths = (
 				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/mapapi.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GoogleMaps.bundle",
+				"${TARGET_BUILD_DIR}/${UNLOCALIZED_RESOURCES_FOLDER_PATH}/GooglePlaces.bundle",
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 			shellPath = /bin/sh;
@@ -1353,11 +1357,7 @@
 					"$(PROJECT_DIR)/Libs",
 					"\"$(SRCROOT)/Libs\"",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-l",
-					"\"Masonry\"",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Medicine.ILiveSDK;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -1395,11 +1395,7 @@
 					"$(PROJECT_DIR)/Libs",
 					"\"$(SRCROOT)/Libs\"",
 				);
-				OTHER_LDFLAGS = (
-					"-ObjC",
-					"-l",
-					"\"Masonry\"",
-				);
+				OTHER_LDFLAGS = "$(inherited)";
 				PRODUCT_BUNDLE_IDENTIFIER = com.Medicine.ILiveSDK;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				TARGETED_DEVICE_FAMILY = "1,2";
