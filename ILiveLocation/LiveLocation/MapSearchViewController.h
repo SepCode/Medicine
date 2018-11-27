@@ -18,4 +18,7 @@
 @property (nonatomic, strong) UITableView *tableView;
 @property (nonatomic, strong) UISearchBar *searchBar;
 
+/// isBMK
+@property (nonatomic) BOOL isBMK;
+
 @end

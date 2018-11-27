@@ -12,18 +12,24 @@
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
 #import <BaiduMapAPI_Utils/BMKUtilsComponent.h>
 #import <Masonry.h>
+#import <GooglePlaces/GooglePlaces.h>
+#import <GoogleMaps/GoogleMaps.h>
 
-@interface MapSearchViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, BMKSuggestionSearchDelegate, BMKMapViewDelegate, BMKPoiSearchDelegate>
+@interface MapSearchViewController () <UITableViewDataSource, UITableViewDelegate, UISearchBarDelegate, BMKSuggestionSearchDelegate, BMKMapViewDelegate, BMKPoiSearchDelegate, GMSMapViewDelegate>
 /// data
 @property (nonatomic, strong) NSMutableArray *data;
 
 /// search
 @property (nonatomic, strong) BMKSuggestionSearch *search;
-
 /// poi
 @property (nonatomic, strong) BMKPoiSearch *poi;
 
 @property (nonatomic, strong) BMKMapView *mapView; //当前界面的mapView
+
+
+/// gmsMapView
+@property (nonatomic, strong) GMSMapView *gmsMapView;
+
 @end
 
 static NSString *kCell = @"cell";
@@ -33,7 +39,7 @@ static NSString *kCell = @"cell";
 - (instancetype)init {
     
     if (self = [super init]) {
-        
+        _isBMK = YES;
         _city = @"北京";
         _location = CLLocationCoordinate2DMake(39.90868, 116.3956);
         [self setSearchBar];
@@ -53,6 +59,7 @@ static NSString *kCell = @"cell";
 - (void)viewWillAppear:(BOOL)animated {
     //当mapView即将被显示的时候调用，恢复之前存储的mapView状态
     [_mapView viewWillAppear];
+    [self.searchBar becomeFirstResponder];
 }
 
 
@@ -62,7 +69,7 @@ static NSString *kCell = @"cell";
     self.view.backgroundColor = [UIColor whiteColor];
     
     self.navigationItem.titleView = self.searchBar;
-    [self.searchBar becomeFirstResponder];
+    
     self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc] initWithImage:[UIImage imageNamed:@"backIcon"] style:UIBarButtonItemStylePlain target:self action:@selector(backClick)];
     
     // Do any additional setup after loading the view from its nib.
@@ -86,18 +93,26 @@ static NSString *kCell = @"cell";
     }];
     
     
-    self.search = [BMKSuggestionSearch new];
-    self.search.delegate = self;
-    self.poi = [BMKPoiSearch new];
-    self.poi.delegate = self;
 }
 
 
 - (void)createMapView {
-    //将mapView添加到当前视图中
-    [self.view addSubview:self.mapView];
-    //设置mapView的代理
-    _mapView.delegate = self;
+    
+    
+    if (self.isBMK) {
+        //将mapView添加到当前视图中
+        [self.view addSubview:self.mapView];
+        self.poi = [BMKPoiSearch new];
+        self.poi.delegate = self;
+        
+        self.search = [BMKSuggestionSearch new];
+        self.search.delegate = self;
+        
+    } else {
+        [self.view addSubview:self.gmsMapView];
+    }
+    
+    
 }
 
 
@@ -111,6 +126,11 @@ static NSString *kCell = @"cell";
 }
 
 - (void)backClick {
+    
+    self.searchBar.text = @"";
+    [self.data removeAllObjects];
+    [self.tableView reloadData];
+    [self layoutTbisFullScreen:YES];
     [self.navigationController popViewControllerAnimated:NO];
 }
 
@@ -141,6 +161,52 @@ static NSString *kCell = @"cell";
     
     return cell;
 }
+
+
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+    
+    if (self.searchBar.isFirstResponder) {
+        
+        NSString *name = [self getTitle:indexPath];
+        [self searchAddress:name];
+        self.searchBar.text = name;
+        [self.searchBar endEditing:YES];
+        
+        [self layoutTbisFullScreen:NO];
+        
+    } else {
+        
+        
+        [self insertAnnotation:indexPath];
+        
+        
+    }
+    
+}
+// MARK: - 布局
+
+- (void)layoutTbisFullScreen:(BOOL)isFullScreen {
+    
+    
+    [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        
+        if (isFullScreen) {
+            make.top.bottom.left.right.equalTo(self.view);
+        } else {
+            make.top.equalTo(self.isBMK ? self.mapView.mas_bottom : self.gmsMapView.mas_bottom);
+            make.bottom.left.right.equalTo(self.view);
+        }
+        
+    }];
+    
+    
+    [UIView animateWithDuration:0.25 animations:^{
+        [self.tableView layoutIfNeeded];
+    }];
+    
+}
+
+// MARK: - 导航
 
 - (void)openNav:(UIButton *)btn {
     
@@ -184,21 +250,13 @@ static NSString *kCell = @"cell";
     
 }
 
-- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
+// MARK: - 位置
+
+
+- (void)insertAnnotation:(NSIndexPath *)indexPath {
     
-    if (self.searchBar.isFirstResponder) {
-        NSString *name = [self getTitle:indexPath];
-        [self searchAddress:name];
-        self.searchBar.text = name;
-        [self.searchBar endEditing:YES];
-        [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(self.mapView.mas_bottom);
-            make.bottom.left.right.equalTo(self.view);
-        }];
-        [UIView animateWithDuration:0.25 animations:^{
-            [self.tableView layoutIfNeeded];
-        }];
-    } else {
+    if (self.isBMK) {
+        
         [self.mapView removeAnnotations:self.mapView.annotations];
         
         //初始化标注类BMKPointAnnotation的实例
@@ -211,11 +269,18 @@ static NSString *kCell = @"cell";
         [_mapView addAnnotation:annotation];
         //设置当前地图的中心点
         _mapView.centerCoordinate = annotation.coordinate;
+        
+    } else {
+        
+        
+        
     }
+    
+    
     
 }
 
-// MARK: - fangfa
+
 
 - (NSString *)getTitle:(NSIndexPath *)indexPath {
     
@@ -257,73 +322,94 @@ static NSString *kCell = @"cell";
     
     [self suggesAddress:searchBar.text];
     
-    [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.top.bottom.left.right.equalTo(self.view);
-    }];
-    [UIView animateWithDuration:0.25 animations:^{
-        [self.tableView layoutIfNeeded];
-    }];
+    [self layoutTbisFullScreen:YES];
 }
 
 - (void)searchBarSearchButtonClicked:(UISearchBar *)searchBar {
     NSLog(@"searchButton");
     [self searchAddress:searchBar.text];
     [searchBar endEditing:YES];
-    [self.tableView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.mapView.mas_bottom);
-        make.bottom.left.right.equalTo(self.view);
-    }];
-    [UIView animateWithDuration:0.25 animations:^{
-        [self.tableView layoutIfNeeded];
-    }];
+    
+    [self layoutTbisFullScreen:NO];
+    
 }
 
+// MARK: - google
+
+- (void)placeAutocomplete:(NSString *)text {
+    
+    GMSAutocompleteFilter *filter = [[GMSAutocompleteFilter alloc] init];
+    filter.type = kGMSPlacesAutocompleteTypeFilterNoFilter;
+    
+    [GMSPlacesClient.sharedClient autocompleteQuery:text
+                              bounds:nil
+                              filter:filter
+                            callback:^(NSArray *results, NSError *error) {
+                                if (error != nil) {
+                                    NSLog(@"Autocomplete error %@", [error localizedDescription]);
+                                    return;
+                                }
+                                
+                                for (GMSAutocompletePrediction* result in results) {
+                                    NSLog(@"Result '%@' with placeID %@", result.attributedFullText.string, result.placeID);
+                                }
+                            }];
+}
+
+
+// MARK: - 百度
+
 - (void)onGetSuggestionResult:(BMKSuggestionSearch *)searcher result:(BMKSuggestionSearchResult *)result errorCode:(BMKSearchErrorCode)error {
-//    [_mapView removeAnnotations:_mapView.annotations];
-    //BMKSearchErrorCode错误码，BMK_SEARCH_NO_ERROR：检索结果正常返回
-    if (error == BMK_SEARCH_NO_ERROR) {
-//        NSMutableArray *annotations = [NSMutableArray array];
-//        for (BMKSuggestionInfo *sugInfo in result.suggestionList) {
-//            BMKPointAnnotation *annotation = [[BMKPointAnnotation alloc]init];
-//            CLLocationCoordinate2D coor = sugInfo.location;
-//            annotation.coordinate = coor;
-//            _mapView.centerCoordinate = coor;
-//            [annotations addObject:annotation];
-//        }
-//        //将一组标注添加到当前地图View中
-//        [_mapView addAnnotations:annotations];
-    }
+
     self.data = [result.suggestionList mutableCopy];
     [self.tableView reloadData];
 }
 
 - (void)suggesAddress:(NSString *)address {
     
-    BMKSuggestionSearchOption *option = [BMKSuggestionSearchOption new];
-    option.cityname = self.city;
-    option.keyword = address;
-    BOOL flag = [self.search suggestionSearch:option];
-    if(flag) {
-        NSLog(@"关键词检索成功");
+    
+    if (self.isBMK) {
+        BMKSuggestionSearchOption *option = [BMKSuggestionSearchOption new];
+        option.cityname = self.city;
+        option.keyword = address;
+        BOOL flag = [self.search suggestionSearch:option];
+        if(flag) {
+            NSLog(@"关键词检索成功");
+        } else {
+            NSLog(@"关键词检索失败");
+        }
+        
     } else {
-        NSLog(@"关键词检索失败");
+        
+        [self placeAutocomplete:address];
+        
     }
+    
 }
 
 - (void)searchAddress:(NSString *)address {
     
-    BMKPOICitySearchOption *cityOption = [[BMKPOICitySearchOption alloc]init];
-    //检索关键字，必选。举例：天安门
-    cityOption.keyword = address;
-    //区域名称(市或区的名字，如北京市，海淀区)，最长不超过25个字符，必选
-    cityOption.city = self.city;
-    
-    BOOL flag = [self.poi poiSearchInCity:cityOption];
-    if(flag) {
-        NSLog(@"POI城市内检索成功");
+    if (self.isBMK) {
+        
+        BMKPOICitySearchOption *cityOption = [[BMKPOICitySearchOption alloc]init];
+        //检索关键字，必选。举例：天安门
+        cityOption.keyword = address;
+        //区域名称(市或区的名字，如北京市，海淀区)，最长不超过25个字符，必选
+        cityOption.city = self.city;
+        
+        BOOL flag = [self.poi poiSearchInCity:cityOption];
+        if(flag) {
+            NSLog(@"POI城市内检索成功");
+        } else {
+            NSLog(@"POI城市内检索失败");
+        }
+
     } else {
-        NSLog(@"POI城市内检索失败");
+    
+        [self placeAutocomplete:address];
+        
     }
+    
     
 }
 
@@ -366,8 +452,25 @@ static NSString *kCell = @"cell";
     if (!_mapView) {
         CGSize size = self.view.frame.size;
         _mapView = [[BMKMapView alloc] initWithFrame:CGRectMake(0, 0, size.width, size.height * 2.0 / 5.0)];
+        //设置mapView的代理
+        _mapView.delegate = self;
     }
     return _mapView;
+}
+
+- (GMSMapView *)gmsMapView
+{
+    if(!_gmsMapView)
+    {
+        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:-33.868
+                                                                longitude:151.2086
+                                                                     zoom:12];
+        CGSize size = self.view.frame.size;
+        _gmsMapView = [GMSMapView mapWithFrame:CGRectMake(0, 0, size.width, size.height * 2.0 / 5.0) camera:camera];
+        _gmsMapView.delegate = self;
+
+    }
+    return _gmsMapView;
 }
 
 

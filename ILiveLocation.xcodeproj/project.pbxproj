@@ -136,8 +136,6 @@
 		A2086E77219581C000D45576 /* control.xml in Resources */ = {isa = PBXBuildFile; fileRef = A2086E75219581BF00D45576 /* control.xml */; };
 		A2086E78219581C000D45576 /* PandoraApi.bundle in Resources */ = {isa = PBXBuildFile; fileRef = A2086E76219581BF00D45576 /* PandoraApi.bundle */; };
 		A27D8EFE2143A86300B89E51 /* MapViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A27D8EFC2143A86300B89E51 /* MapViewController.m */; };
-		A27D8F032144B7C600B89E51 /* MapResultViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A27D8F012144B7C600B89E51 /* MapResultViewController.m */; };
-		A27D8F042144B7C600B89E51 /* MapResultViewController.xib in Resources */ = {isa = PBXBuildFile; fileRef = A27D8F022144B7C600B89E51 /* MapResultViewController.xib */; };
 		A27D8F082144C98100B89E51 /* MapSearchViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = A27D8F062144C98100B89E51 /* MapSearchViewController.m */; };
 		A27D8F0B2144F7D000B89E51 /* BMKLocationKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A27D8F0A2144F7CF00B89E51 /* BMKLocationKit.framework */; };
 		A27D8F112144F83200B89E51 /* BaiduMapAPI_Utils.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = A27D8F0C2144F83200B89E51 /* BaiduMapAPI_Utils.framework */; };
@@ -344,9 +342,6 @@
 		A2086E76219581BF00D45576 /* PandoraApi.bundle */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.plug-in"; path = PandoraApi.bundle; sourceTree = "<group>"; };
 		A27D8EFB2143A86300B89E51 /* MapViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapViewController.h; sourceTree = "<group>"; };
 		A27D8EFC2143A86300B89E51 /* MapViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapViewController.m; sourceTree = "<group>"; };
-		A27D8F002144B7C600B89E51 /* MapResultViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapResultViewController.h; sourceTree = "<group>"; };
-		A27D8F012144B7C600B89E51 /* MapResultViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapResultViewController.m; sourceTree = "<group>"; };
-		A27D8F022144B7C600B89E51 /* MapResultViewController.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MapResultViewController.xib; sourceTree = "<group>"; };
 		A27D8F052144C98100B89E51 /* MapSearchViewController.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = MapSearchViewController.h; sourceTree = "<group>"; };
 		A27D8F062144C98100B89E51 /* MapSearchViewController.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = MapSearchViewController.m; sourceTree = "<group>"; };
 		A27D8F0A2144F7CF00B89E51 /* BMKLocationKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = BMKLocationKit.framework; path = Pods/BMKLocationKit/framework/BMKLocationKit.framework; sourceTree = "<group>"; };
@@ -948,9 +943,6 @@
 				A27D8EFC2143A86300B89E51 /* MapViewController.m */,
 				A27D8F052144C98100B89E51 /* MapSearchViewController.h */,
 				A27D8F062144C98100B89E51 /* MapSearchViewController.m */,
-				A27D8F002144B7C600B89E51 /* MapResultViewController.h */,
-				A27D8F012144B7C600B89E51 /* MapResultViewController.m */,
-				A27D8F022144B7C600B89E51 /* MapResultViewController.xib */,
 				6A5016152080B7B600132260 /* CreateRoomViewController.h */,
 				6A5016162080B7B700132260 /* CreateRoomViewController.m */,
 				6A5016182080B7B700132260 /* CreateRoomViewController.xib */,
@@ -1055,7 +1047,6 @@
 				6A5015EB2080B70A00132260 /* tooth_3.png in Resources */,
 				6A5014FD2080B69D00132260 /* LaunchScreen.storyboard in Resources */,
 				6A5015DB2080B70A00132260 /* tooth_1.png in Resources */,
-				A27D8F042144B7C600B89E51 /* MapResultViewController.xib in Resources */,
 				6A5015FE2080B70A00132260 /* qingliang.png in Resources */,
 				6A5015CC2080B70A00132260 /* huzi_0.png in Resources */,
 				6A5015E22080B70A00132260 /* tooth_16.png in Resources */,
@@ -1183,7 +1174,6 @@
 			files = (
 				6A5014F52080B69D00132260 /* ViewController.m in Sources */,
 				6A50161C2080B7B700132260 /* LiveRoomViewController.m in Sources */,
-				A27D8F032144B7C600B89E51 /* MapResultViewController.m in Sources */,
 				A27D8F1A2147F56200B89E51 /* UIView+Frame.m in Sources */,
 				A2CABEEA2197CA7300CFDA5A /* PGPluginTest.m in Sources */,
 				6A50161B2080B7B700132260 /* CreateRoomViewController.m in Sources */,

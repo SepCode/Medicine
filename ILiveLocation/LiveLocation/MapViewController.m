@@ -7,14 +7,14 @@
 //
 
 #import "MapViewController.h"
-#import "MapResultViewController.h"
 #import "MapSearchViewController.h"
 #import <BaiduMapAPI_Map/BMKMapComponent.h>
 #import <BMKLocationKit/BMKLocationComponent.h>
 #import <Masonry.h>
 #import "UIView+Frame.h"
+#import <GoogleMaps/GoogleMaps.h>
 
-@interface MapViewController () <BMKMapViewDelegate, BMKLocationManagerDelegate, UISearchBarDelegate>
+@interface MapViewController () <BMKMapViewDelegate, BMKLocationManagerDelegate, UISearchBarDelegate, GMSMapViewDelegate>
 @property (nonatomic, strong) MapSearchViewController *search;
 @property (nonatomic, strong) UIButton *searchBtn;
 /// searchBar
@@ -22,6 +22,17 @@
 @property (nonatomic, strong) BMKMapView *mapView; //当前界面的mapView
 @property (nonatomic, strong) BMKLocationManager *locationManager; //定位对象
 @property (nonatomic, strong) BMKUserLocation *userLocation; //当前位置对象
+
+/// gmsMapView
+@property (nonatomic, strong) GMSMapView *gmsMapView;
+/// location
+@property (nonatomic, strong) CLLocation *location;
+/// firstLocationUpdate
+@property (nonatomic) BOOL firstLocationUpdate;
+
+/// isBMK
+@property (nonatomic) BOOL isBMK;
+
 @end
 
 @implementation MapViewController
@@ -52,7 +63,12 @@
     
     // Do any additional setup after loading the view from its nib.
     
-    [self createMapView];
+    // 开始定位
+    self.isBMK = YES;
+    //开启定位服务
+    [self.locationManager startUpdatingLocation];
+    
+    
     [self setBaseView];
     
 }
@@ -117,20 +133,19 @@
 
 - (void)btnClick {
 
-    [self.mapView setCenterCoordinate:self.userLocation.location.coordinate animated:YES];
+    if (self.isBMK) {
+        [self.mapView setCenterCoordinate:self.userLocation.location.coordinate animated:YES];
+        
+    } else {
+        self.gmsMapView.camera = [GMSCameraPosition cameraWithTarget:self.location.coordinate
+                                                            zoom:14];
+    }
     
 }
 
 - (void)backClick {
     [self.navigationController popViewControllerAnimated:YES];
     self.navigationController.navigationBarHidden = YES;
-}
-
-- (void)createMapView {
-    //将mapView添加到当前视图中
-    [self.view addSubview:self.mapView];
-    //设置mapView的代理
-    self.mapView.delegate = self;
 }
 
 // MARK: - uisearchBarDelegate
@@ -158,6 +173,7 @@
 #pragma mark - BMKLocationManagerDelegate
 - (void)BMKLocationManager:(BMKLocationManager * _Nonnull)manager didFailWithError:(NSError * _Nullable)error {
     NSLog(@"定位失败");
+    
 }
 - (void)BMKLocationManager:(BMKLocationManager *)manager didUpdateHeading:(CLHeading *)heading {
     if (!heading) {
@@ -178,11 +194,35 @@
     }
     
     self.userLocation.location = location.location;
-    //实现该方法，否则定位图标不出现
-    [self.mapView updateLocationData:self.userLocation];
     
-    self.search.city = location.rgcData.city;
-    self.search.location = location.location.coordinate;
+    self.isBMK = [BMKLocationManager BMKLocationDataAvailableForCoordinate:self.userLocation.location.coordinate withCoorType:BMKLocationCoordinateTypeBMK09LL];
+    self.search.isBMK = self.isBMK;
+    // 判断是否在国内
+    if (self.isBMK) {
+        
+        if (_gmsMapView) {
+            [self.gmsMapView removeFromSuperview];
+        }
+        //将mapView添加到当前视图中
+        [self.view insertSubview:self.mapView belowSubview:self.searchBar];
+        
+        [self.locationManager startUpdatingHeading];
+        
+        //实现该方法，否则定位图标不出现
+        [self.mapView updateLocationData:self.userLocation];
+        
+        self.search.city = location.rgcData.city;
+        self.search.location = location.location.coordinate;
+        
+    } else {
+        
+        [self.locationManager stopUpdatingLocation];
+        if (_mapView) {
+            [self.mapView removeFromSuperview];
+        }
+        [self.view insertSubview:self.gmsMapView belowSubview:self.searchBar];
+    }
+    
 }
 #pragma mark - Lazy loading
 - (BMKMapView *)mapView {
@@ -192,10 +232,10 @@
         _mapView.userTrackingMode = BMKUserTrackingModeFollow;
         //显示定位图层
         _mapView.showsUserLocation = YES;
+        //设置mapView的代理
+        _mapView.delegate = self;
         
-        //开启定位服务
-        [self.locationManager startUpdatingLocation];
-        [self.locationManager startUpdatingHeading];
+        
     }
     return _mapView;
 }
@@ -218,6 +258,63 @@
         _userLocation = [[BMKUserLocation alloc] init];
     }
     return _userLocation;
+}
+
+/// 懒加载
+- (GMSMapView *)gmsMapView
+{
+    if(!_gmsMapView)
+    {
+        GMSCameraPosition *camera = [GMSCameraPosition cameraWithLatitude:-33.868
+                                                                longitude:151.2086
+                                                                     zoom:12];
+        
+        _gmsMapView = [GMSMapView mapWithFrame:self.view.bounds camera:camera];
+        _gmsMapView.delegate = self;
+        _gmsMapView.settings.compassButton = YES;
+//        _gmsMapView.settings.myLocationButton = YES;
+        
+        
+        // Listen to the myLocation property of GMSMapView.
+        [_gmsMapView addObserver:self
+                   forKeyPath:@"myLocation"
+                      options:NSKeyValueObservingOptionNew
+                      context:NULL];
+        
+        // Ask for My Location data after the map has already been added to the UI.
+        dispatch_async(dispatch_get_main_queue(), ^{
+            _gmsMapView.myLocationEnabled = YES;
+        });
+    }
+    return _gmsMapView;
+}
+
+
+- (void)dealloc {
+    
+    if (!self.isBMK) {
+        [self.gmsMapView removeObserver:self
+                             forKeyPath:@"myLocation"
+                                context:NULL];
+    }
+}
+
+#pragma mark - KVO updates
+
+- (void)observeValueForKeyPath:(NSString *)keyPath
+                      ofObject:(id)object
+                        change:(NSDictionary *)change
+                       context:(void *)context {
+    if (!_firstLocationUpdate) {
+        // If the first location update has not yet been received, then jump to that
+        // location.
+        _firstLocationUpdate = YES;
+        CLLocation *location = [change objectForKey:NSKeyValueChangeNewKey];
+        _gmsMapView.camera = [GMSCameraPosition cameraWithTarget:location.coordinate
+                                                         zoom:14];
+        self.search.location = location.coordinate;
+        self.location = location;
+    }
 }
 
 @end

@@ -58,8 +58,8 @@ static  const int kAccountType = 31110;
     /////////////////////////////////////////////
     //googlemap
     
-    [GMSPlacesClient provideAPIKey:@"AIzaSyBYfzmjqwBtY9RLV2PzFgFNNpJAL28akdE"];
-    [GMSServices provideAPIKey:@"AIzaSyBYfzmjqwBtY9RLV2PzFgFNNpJAL28akdE"];
+    [GMSPlacesClient provideAPIKey:@"AIzaSyDG26kaonKtG8TDcS2PVJtf1NqKjQFYo2U"];
+    [GMSServices provideAPIKey:@"AIzaSyDG26kaonKtG8TDcS2PVJtf1NqKjQFYo2U"];
     
     /////////////////////////////////////////////////////////////////////////////////
     
