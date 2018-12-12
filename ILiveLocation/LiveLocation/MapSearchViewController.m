@@ -272,12 +272,31 @@ static NSString *kCell = @"cell";
         
     } else {
         
+        [self.gmsMapView clear];
         
+        GMSAutocompletePrediction* result = self.data[indexPath.row];
+        [GMSPlacesClient.sharedClient lookUpPlaceID:result.placeID callback:^(GMSPlace * _Nullable result, NSError * _Nullable error) {
+            
+            [self insertMarker:result];
+            
+        }];
         
     }
     
     
     
+}
+
+- (void)insertMarker:(GMSPlace *)place {
+    if (!place) return;
+    [self.gmsMapView clear];
+    GMSMarker *marker = [GMSMarker markerWithPosition:place.coordinate];
+    marker.title = place.name;
+    marker.map = self.gmsMapView;
+    GMSCameraPosition *sydney = [GMSCameraPosition cameraWithLatitude:place.coordinate.latitude
+                                                            longitude:place.coordinate.longitude
+                                                                 zoom:12];
+    self.gmsMapView.camera = sydney;
 }
 
 
@@ -289,6 +308,8 @@ static NSString *kCell = @"cell";
         return ((BMKSuggestionInfo *)info).key;
     } else if ([info isKindOfClass:BMKPoiInfo.class]) {
         return ((BMKPoiInfo *)info).name;
+    } else if ([info isKindOfClass:GMSAutocompletePrediction.class]) {
+        return ((GMSAutocompletePrediction *)info).attributedPrimaryText.string;
     }
     return @"";
 }
@@ -296,7 +317,12 @@ static NSString *kCell = @"cell";
 - (NSString *)getDetailTitle:(NSIndexPath *)indexPath {
     
     id info = self.data[indexPath.row];
-    return ((BMKSuggestionInfo *)info).address;
+    if ([info isKindOfClass:BMKSuggestionInfo.class]) {
+        return ((BMKSuggestionInfo *)info).address;
+        
+    } else {
+        return @"";
+    }
 
 }
 
@@ -336,7 +362,7 @@ static NSString *kCell = @"cell";
 
 // MARK: - google
 
-- (void)placeAutocomplete:(NSString *)text {
+- (void)placeAutocomplete:(NSString *)text insertAn:(BOOL)insertAn {
     
     GMSAutocompleteFilter *filter = [[GMSAutocompleteFilter alloc] init];
     filter.type = kGMSPlacesAutocompleteTypeFilterNoFilter;
@@ -353,6 +379,21 @@ static NSString *kCell = @"cell";
                                 for (GMSAutocompletePrediction* result in results) {
                                     NSLog(@"Result '%@' with placeID %@", result.attributedFullText.string, result.placeID);
                                 }
+                                
+                                if (insertAn) {
+                                    GMSAutocompletePrediction* result = results[0];
+                                    [GMSPlacesClient.sharedClient lookUpPlaceID:result.placeID callback:^(GMSPlace * _Nullable result, NSError * _Nullable error) {
+                                        
+                                        [self insertMarker:result];
+                                        
+                                    }];
+                                    
+                                }
+                                
+                                
+                                self.data = (NSMutableArray *)results;
+                                [self.tableView reloadData];
+                                
                             }];
 }
 
@@ -381,7 +422,7 @@ static NSString *kCell = @"cell";
         
     } else {
         
-        [self placeAutocomplete:address];
+        [self placeAutocomplete:address insertAn:NO];
         
     }
     
@@ -406,7 +447,7 @@ static NSString *kCell = @"cell";
 
     } else {
     
-        [self placeAutocomplete:address];
+        [self placeAutocomplete:address insertAn:YES];
         
     }
     
