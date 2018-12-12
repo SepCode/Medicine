@@ -28,6 +28,7 @@
 			<key>CFBundleURLSchemes</key>
 			<array>
 				<string>baidumapsdk</string>
+				<string>comgooglemaps</string>
 			</array>
 		</dict>
 	</array>
@@ -41,9 +42,9 @@
 		<true/>
 	</dict>
 	<key>LSApplicationQueriesSchemes</key>
-    <array>
-        <string>baidumap</string>
-    </array>
+	<array>
+		<string>baidumap</string>
+	</array>
 	<key>NSCameraUsageDescription</key>
 	<string>用于获取主播摄像头画面</string>
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>

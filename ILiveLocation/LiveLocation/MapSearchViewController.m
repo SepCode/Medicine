@@ -212,7 +212,29 @@ static NSString *kCell = @"cell";
     
     NSIndexPath *indexPath = [self.tableView indexPathForCell:(UITableViewCell *)btn.superview];
     
-    [self openBaiduNav:indexPath];
+    if (self.isBMK) {
+        [self openBaiduNav:indexPath];
+        
+    } else {
+        [self openGMSNav:indexPath];
+    }
+    
+}
+
+- (void)openGMSNav:(NSIndexPath *)indexPath {
+    
+    GMSAutocompletePrediction* result = self.data[indexPath.row];
+    [GMSPlacesClient.sharedClient lookUpPlaceID:result.placeID callback:^(GMSPlace * _Nullable result, NSError * _Nullable error) {
+        
+        NSString *str = [NSString stringWithFormat:@"comgooglemaps://?daddr=%f,%f&directionsmode=driving&zoom=17",result.coordinate.latitude,result.coordinate.longitude];
+        if ([[UIApplication sharedApplication] canOpenURL:
+             [NSURL URLWithString:@"comgooglemaps://"]]) {
+            [[UIApplication sharedApplication] openURL:[NSURL URLWithString:str] options:@{} completionHandler:nil];
+        }
+        
+        
+    }];
+ 
     
 }
 
@@ -295,7 +317,7 @@ static NSString *kCell = @"cell";
     marker.map = self.gmsMapView;
     GMSCameraPosition *sydney = [GMSCameraPosition cameraWithLatitude:place.coordinate.latitude
                                                             longitude:place.coordinate.longitude
-                                                                 zoom:12];
+                                                                 zoom:10];
     self.gmsMapView.camera = sydney;
 }
 
@@ -320,9 +342,15 @@ static NSString *kCell = @"cell";
     if ([info isKindOfClass:BMKSuggestionInfo.class]) {
         return ((BMKSuggestionInfo *)info).address;
         
-    } else {
-        return @"";
+    } else if ([info isKindOfClass:GMSAutocompletePrediction.class]) {
+        if (self.searchBar.isFirstResponder) {
+            return @"";
+            
+        } else {
+            return ((GMSAutocompletePrediction *)info).attributedFullText.string;
+        }
     }
+    return @"";
 
 }
 
